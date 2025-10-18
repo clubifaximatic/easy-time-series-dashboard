@@ -9,6 +9,7 @@ class TimeSeriesDashboard {
         this.parsedData = null;
         this.chart = null;
         this.visibleSamples = new Set();
+        this.timeFormat = null;
 
         this.initializeEventListeners();
     }
@@ -94,8 +95,13 @@ class TimeSeriesDashboard {
             throw new Error('No sample columns found in CSV');
         }
 
+        // Detect time format from first data row
+        const firstDataRow = lines[1].split(',').map(val => val.trim());
+        this.timeFormat = this.detectTimeFormat(firstDataRow[0]);
+
         // Parse data rows
         const timePoints = [];
+        const processedTimePoints = [];
         const sampleData = {};
 
         // Initialize sample data arrays
@@ -112,13 +118,16 @@ class TimeSeriesDashboard {
                 continue;
             }
 
-            const timeValue = parseFloat(values[0]);
-            if (isNaN(timeValue)) {
-                console.warn(`Invalid time value at row ${i + 1}: ${values[0]}`);
+            const rawTimeValue = values[0];
+            const processedTime = this.processTimeValue(rawTimeValue, this.timeFormat);
+
+            if (processedTime === null) {
+                console.warn(`Invalid time value at row ${i + 1}: ${rawTimeValue}`);
                 continue;
             }
 
-            timePoints.push(timeValue);
+            timePoints.push(processedTime.numeric);
+            processedTimePoints.push(processedTime);
 
             // Parse sample values
             for (let j = 1; j < values.length; j++) {
@@ -143,8 +152,146 @@ class TimeSeriesDashboard {
             timeColumnName,
             samples: sampleNames,
             timePoints,
-            sampleData
+            processedTimePoints,
+            sampleData,
+            timeFormat: this.timeFormat
         };
+    }
+
+    detectTimeFormat(timeValue) {
+        const trimmedValue = timeValue.trim();
+
+        // Integer values starting with 0 or 1
+        if (/^[01]\d*$/.test(trimmedValue) && trimmedValue.length <= 10) {
+            return 'integer';
+        }
+
+        // Time string format (YYYYMMDDHHMMSS)
+        if (/^\d{14}$/.test(trimmedValue)) {
+            return 'datetime_string';
+        }
+
+        // Epoch in milliseconds (13+ digits)
+        if (/^\d{13,}$/.test(trimmedValue)) {
+            return 'epoch_milliseconds';
+        }
+
+        // Epoch in seconds (10+ digits, but less than 13)
+        if (/^\d{10,12}$/.test(trimmedValue)) {
+            return 'epoch_seconds';
+        }
+
+        // Default to integer if it's a number
+        if (!isNaN(parseFloat(trimmedValue))) {
+            return 'integer';
+        }
+
+        throw new Error(`Unrecognized time format: ${timeValue}`);
+    }
+
+    processTimeValue(rawValue, format) {
+        const trimmedValue = rawValue.trim();
+
+        try {
+            switch (format) {
+                case 'integer':
+                    const intValue = parseInt(trimmedValue);
+                    return {
+                        numeric: intValue,
+                        display: intValue.toString(),
+                        raw: rawValue
+                    };
+
+                case 'epoch_seconds':
+                    const epochSeconds = parseInt(trimmedValue);
+                    const dateFromSeconds = new Date(epochSeconds * 1000);
+                    return {
+                        numeric: dateFromSeconds.time(),
+                        date: dateFromSeconds,
+                        display: this.formatDateTime(dateFromSeconds),
+                        raw: rawValue
+                    };
+
+                case 'epoch_milliseconds':
+                    const epochMs = parseInt(trimmedValue);
+                    const dateFromMs = new Date(epochMs);
+                    return {
+                        numeric: dateFromMs.getTime(),
+                        date: dateFromMs,
+                        display: this.formatDateTimeWithMs(dateFromMs),
+                        raw: rawValue
+                    };
+
+                case 'datetime_string':
+                    const dateFromString = this.parseDateTimeString(trimmedValue);
+                    return {
+                        numeric: dateFromString.getTime(),
+                        date: dateFromString,
+                        display: this.formatDateTime(dateFromString),
+                        raw: rawValue
+                    };
+
+                default:
+                    return null;
+            }
+        } catch (error) {
+            console.warn(`Error processing time value ${rawValue}:`, error);
+            return null;
+        }
+    }
+
+    // ie 20251016082920 -> 2025 - 10 - 16 - 08 - 29 - 20
+    parseDateTimeString(dateTimeStr) {
+        // Parse YYYYMMDDHHMMSS format
+        if (dateTimeStr.length !== 14) {
+            throw new Error('DateTime string must be 14 characters (YYYYMMDDHHMMSS)');
+        }
+
+        const year = parseInt(dateTimeStr.substr(0, 4));
+        const month = parseInt(dateTimeStr.substr(4, 2))
+        const day = parseInt(dateTimeStr.substr(6, 2));
+        const hour = parseInt(dateTimeStr.substr(8, 2));
+        const minute = parseInt(dateTimeStr.substr(10, 2));
+        const second = parseInt(dateTimeStr.substr(12, 2));
+
+        return new Date(year, month, day, hour, minute, second);
+    }
+
+    formatShortDateTime(date, withMillis = false) {
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+
+        var time = `${hours}:${minutes}:${seconds}`
+        
+        return  withMillis 
+                    ? `${time}.${date.getMilliseconds().toString().padStart(3, '0')}` 
+                    : time;
+    }
+
+
+    formatDateTime(date, withMillis = false) {
+        const year = date.getFullYear().toString() 
+        const month = date.getMonth().toString().padStart(2, '0')
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+
+        //if (days > 0) {
+        //    return `${day} ${hours}:${minutes}:${seconds}`;
+        //} else {
+        //    return `${hours}:${minutes}:${seconds}`;
+        //}
+        var dateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+        
+        return  withMillis 
+                    ? `${dateTime}.${date.getMilliseconds().toString().padStart(3, '0')}` 
+                    : dateTime;
+    }
+
+    formatDateTimeWithMs(date) {
+        formatDateTime(date, true);
     }
 
     renderDashboard() {
@@ -256,8 +403,12 @@ class TimeSeriesDashboard {
                     },
                     tooltip: {
                         callbacks: {
-                            title: function(context) {
-                                return `Time: ${context[0].parsed.x}s`;
+                            title: (context) => {
+                                const dataIndex = context[0].dataIndex;
+                                if (this.parsedData.processedTimePoints && this.parsedData.processedTimePoints[dataIndex]) {
+                                    return `Time: ${this.parsedData.processedTimePoints[dataIndex].display}`;
+                                }
+                                return `Time: ${context[0].parsed.x}`;
                             }
                         }
                     }
@@ -268,7 +419,15 @@ class TimeSeriesDashboard {
                         display: true,
                         title: {
                             display: true,
-                            text: 'Time (seconds)'
+                            text: this.getXAxisTitle()
+                        },
+                        ticks: {
+                            callback: (value, index, twos, threes, fours) => {
+                                if (this.parsedData.processedTimePoints && this.parsedData.timeFormat !== 'integer') {
+                                    return this.formatShortDateTime(new Date(value))
+                                }
+                                return value;
+                            }
                         }
                     },
                     y: {
@@ -297,12 +456,34 @@ class TimeSeriesDashboard {
 
     updateInfoSection() {
         const totalDataPoints = this.parsedData.timePoints.length;
-        const minTime = Math.min(...this.parsedData.timePoints);
-        const maxTime = Math.max(...this.parsedData.timePoints);
+        let timeRangeText;
+
+        if (this.parsedData.processedTimePoints && this.parsedData.processedTimePoints.length > 0) {
+            const firstTime = this.parsedData.processedTimePoints[0];
+            const lastTime = this.parsedData.processedTimePoints[this.parsedData.processedTimePoints.length - 1];
+            timeRangeText = `${firstTime.display} - ${lastTime.display}`;
+        } else {
+            const minTime = Math.min(...this.parsedData.timePoints);
+            const maxTime = Math.max(...this.parsedData.timePoints);
+            timeRangeText = `${minTime} - ${maxTime}`;
+        }
 
         document.getElementById('sampleCount').textContent = this.parsedData.samples.length;
         document.getElementById('dataPointCount').textContent = totalDataPoints.toLocaleString();
-        document.getElementById('timeRange').textContent = `${minTime}s - ${maxTime}s`;
+        document.getElementById('timeRange').textContent = timeRangeText;
+    }
+
+    getXAxisTitle() {
+        switch (this.parsedData?.timeFormat) {
+            case 'integer':
+                return 'Time (integer values)';
+            case 'epoch_seconds':
+            case 'epoch_milliseconds':
+            case 'datetime_string':
+                return 'Time (HH:MM:SS)';
+            default:
+                return 'Time';
+        }
     }
 
     getColorForSample(index, alpha = 1) {

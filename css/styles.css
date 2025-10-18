@@ -196,7 +196,7 @@ input:checked + .slider:before {
 /* Chart Section */
 .chart-card {
     padding: 30px;
-    min-height: 500px;
+    min-height: 1000px;
 }
 
 #timeSeriesChart {

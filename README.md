@@ -25,22 +25,69 @@ Time,Sample1,Sample2,Sample3,...
 
 **Requirements:**
 - First row: Column headers (first column should be time, subsequent columns are sample names)
-- First column: Time values in seconds (numeric)
+- First column: Time values in one of the supported formats (see Time Formats section)
 - Subsequent columns: Numeric sample values
 - All values must be comma-separated
 - Missing values are handled gracefully
 
+## Time Formats
+
+The dashboard supports multiple time formats in the first column:
+
+### 1. Integer Values (0, 1, 2, ...)
+Simple sequential integer values starting with 0 or 1
+```csv
+Time,Sample1,Sample2
+0,10.5,20.1
+1,11.2,21.3
+2,12.0,22.5
+```
+**Display:** Shows as integer numeric values on the chart
+
+### 2. Epoch Seconds (e.g., 1760784150)
+Unix timestamp in seconds (10-12 digits)
+```csv
+Time,Sample1,Sample2
+1760784150,10.5,20.1
+1760784151,11.2,21.3
+1760784152,12.0,22.5
+```
+**Display:** Shows as HH:MM:SS with day separation
+
+### 3. Epoch Milliseconds (e.g., 1760784150234)
+Unix timestamp in milliseconds (13+ digits)
+```csv
+Time,Sample1,Sample2
+1760784150234,10.5,20.1
+1760784150734,11.2,21.3
+1760784151234,12.0,22.5
+```
+**Display:** Shows as HH:MM:SS:mmm with day separation
+
+### 4. DateTime String (e.g., 20251018134550)
+Concatenated date-time format: YYYYMMDDHHMMSS
+```csv
+Time,Sample1,Sample2
+20251018134550,10.5,20.1
+20251018134551,11.2,21.3
+20251018134552,12.0,22.5
+```
+**Display:** Shows as HH:MM:SS with day separation
+
 ## File Structure
 
 ```
-├── index.html          # Main entry point
+├── index.html                    # Main entry point
 ├── css/
-│   └── styles.css      # Modern Material Design styles
+│   └── styles.css               # Modern Material Design styles
 ├── js/
-│   └── dashboard.js    # Main application logic
-├── sample-data.csv     # Example CSV file for testing
-├── README.md           # This file
-└── CLAUDE.md          # Project specifications
+│   └── dashboard.js             # Main application logic
+├── sample-data.csv              # Example CSV (integer time format)
+├── sample-epoch-seconds.csv     # Example CSV (epoch seconds format)
+├── sample-epoch-milliseconds.csv # Example CSV (epoch milliseconds format)
+├── sample-datetime-string.csv   # Example CSV (datetime string format)
+├── README.md                    # This file
+└── CLAUDE.md                   # Project specifications
 ```
 
 ## Getting Started
@@ -48,7 +95,11 @@ Time,Sample1,Sample2,Sample3,...
 1. **Open the Application**: Simply open `index.html` in a web browser
 2. **Upload CSV Data**:
    - Click "Choose File" or drag and drop a CSV file
-   - Use `sample-data.csv` to test the application
+   - Use any of the sample CSV files to test different time formats:
+     - `sample-data.csv` (integer time format)
+     - `sample-epoch-seconds.csv` (epoch seconds format)
+     - `sample-epoch-milliseconds.csv` (epoch milliseconds format)
+     - `sample-datetime-string.csv` (datetime string format)
 3. **Interact with Data**:
    - Toggle sample visibility using the switches
    - Hover over data points for detailed values
