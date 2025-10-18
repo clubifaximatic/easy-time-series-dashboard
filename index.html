@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Series Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Time Series Dashboard</h1>
+            <p>Upload CSV files to visualize time-series data</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="upload-card">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">=�</div>
+                    <h3>Upload CSV File</h3>
+                    <p>Drag and drop your CSV file here or click to browse</p>
+                    <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                    <button class="upload-btn" onclick="document.getElementById('csvFile')">
+                        Choose File
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-section" id="controlsSection" style="display: none;">
+            <div class="controls-card">
+                <h3>Sample Controls</h3>
+                <div class="sample-toggles" id="sampleToggles">
+                    <!-- Sample toggle switches will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section" id="chartSection" style="display: none;">
+            <div class="chart-card">
+                <canvas id="timeSeriesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="info-section" id="infoSection" style="display: none;">
+            <div class="info-card">
+                <h3>Dataset Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Samples:</span>
+                        <span class="info-value" id="sampleCount">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Data Points:</span>
+                        <span class="info-value" id="dataPointCount">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Time Range:</span>
+                        <span class="info-value" id="timeRange">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
