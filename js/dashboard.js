@@ -420,7 +420,7 @@ class TimeSeriesDashboard {
                     },
                     legend: {
                         display: true,
-                        position: 'top'
+                        position: 'bottom'
                     },
                     tooltip: {
                         callbacks: {
@@ -439,22 +439,24 @@ class TimeSeriesDashboard {
                         type: 'linear',
                         display: true,
                         title: {
-                            display: true,
+                            display: false,
                             text: 'Time'
                         },
                         ticks: {
-                            callback: (value, index, twos, threes, fours) => {
+                            callback: (value) => {
                                 if (this.parsedData.processedTimePoints && this.parsedData.timeFormat !== 'integer') {
                                     return this.formatShortDateTime(new Date(value))
                                 }
                                 return value;
-                            }
-                        }
+                            },
+                        },
+                        bounds: 'data',
+                        offset: false,
                     },
                     y: {
                         display: true,
                         title: {
-                            display: true,
+                            display: false,
                             text: 'Value'
                         }
                     }
