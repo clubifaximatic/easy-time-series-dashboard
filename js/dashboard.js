@@ -10,6 +10,7 @@ class TimeSeriesDashboard {
         this.chart = null;
         this.visibleSamples = new Set();
         this.timeFormat = null;
+        this.fileName = null;
 
         this.initializeEventListeners();
     }
@@ -53,6 +54,8 @@ class TimeSeriesDashboard {
     }
 
     async handleFileUpload(file) {
+        this.fileName = file.name;
+
         try {
             this.showMessage('Loading CSV file...', 'info');
 
@@ -391,7 +394,7 @@ class TimeSeriesDashboard {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Time Series Data',
+                        text: this.fileName,
                         font: {
                             size: 16,
                             weight: 'bold'
@@ -419,7 +422,7 @@ class TimeSeriesDashboard {
                         display: true,
                         title: {
                             display: true,
-                            text: this.getXAxisTitle()
+                            text: 'Time'
                         },
                         ticks: {
                             callback: (value, index, twos, threes, fours) => {
@@ -456,34 +459,25 @@ class TimeSeriesDashboard {
 
     updateInfoSection() {
         const totalDataPoints = this.parsedData.timePoints.length;
-        let timeRangeText;
+        let timeRangeSinceText;
+        let timeRangeUntilText;
 
         if (this.parsedData.processedTimePoints && this.parsedData.processedTimePoints.length > 0) {
             const firstTime = this.parsedData.processedTimePoints[0];
             const lastTime = this.parsedData.processedTimePoints[this.parsedData.processedTimePoints.length - 1];
-            timeRangeText = `${firstTime.display} - ${lastTime.display}`;
+            timeRangeSinceText = firstTime.display;
+            timeRangeUntilText = lastTime.display;
         } else {
             const minTime = Math.min(...this.parsedData.timePoints);
             const maxTime = Math.max(...this.parsedData.timePoints);
-            timeRangeText = `${minTime} - ${maxTime}`;
+            timeRangeSinceText = minTime;
+            timeRangeUntilText = maxTime;
         }
 
         document.getElementById('sampleCount').textContent = this.parsedData.samples.length;
         document.getElementById('dataPointCount').textContent = totalDataPoints.toLocaleString();
-        document.getElementById('timeRange').textContent = timeRangeText;
-    }
-
-    getXAxisTitle() {
-        switch (this.parsedData?.timeFormat) {
-            case 'integer':
-                return 'Time (integer values)';
-            case 'epoch_seconds':
-            case 'epoch_milliseconds':
-            case 'datetime_string':
-                return 'Time (HH:MM:SS)';
-            default:
-                return 'Time';
-        }
+        document.getElementById('timeRangeSince').textContent = timeRangeSinceText;
+        document.getElementById('timeRangeUntil').textContent = timeRangeUntilText;
     }
 
     getColorForSample(index, alpha = 1) {

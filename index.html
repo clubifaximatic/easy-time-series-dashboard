@@ -29,18 +29,17 @@
             </div>
         </div>
 
-        <div class="controls-section" id="controlsSection" style="display: none;">
-            <div class="controls-card">
-                <h3>Sample Controls</h3>
-                <div class="sample-toggles" id="sampleToggles">
-                    <!-- Sample toggle switches will be generated here -->
-                </div>
-            </div>
-        </div>
-
         <div class="chart-section" id="chartSection" style="display: none;">
             <div class="chart-card">
                 <canvas id="timeSeriesChart"></canvas>
+                <!-- <div class="sample-toggles" id="sampleToggles"></div> -->
+            </div>
+        </div>
+
+        <div class="controls-section" id="controlsSection" style="display: none;">
+            <div class="controls-card">
+                <!-- <h3>Sample Controls</h3> -->
+                <div class="sample-toggles" id="sampleToggles"></div>
             </div>
         </div>
 
@@ -57,8 +56,9 @@
                         <span class="info-value" id="dataPointCount">-</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">Time Range:</span>
-                        <span class="info-value" id="timeRange">-</span>
+                        <!-- <span class="info-label">Time Range:</span> -->
+                        <span class="info-label">Since: <span class="info-value" id="timeRangeSince">since </span></span>
+                        <span class="info-label">Until: <span class="info-value" id="timeRangeUntil">until </span></span>
                     </div>
                 </div>
             </div>
