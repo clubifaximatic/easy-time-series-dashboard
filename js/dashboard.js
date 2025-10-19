@@ -379,6 +379,23 @@ class TimeSeriesDashboard {
             };
         });
 
+        let intersectDataVerticalLine = {
+            id: "intersectDataVerticalLine",
+            beforeDraw: (chart) => {
+                if (chart.getActiveElements().length) {
+                    const activePoint = chart.getActiveElements()[0];
+                    const chartArea = chart.chartArea;
+                    const ctx = chart.ctx;
+                    ctx.beginPath();
+                    ctx.moveTo(activePoint.element.x, chartArea.top);
+                    ctx.lineTo(activePoint.element.x, chartArea.bottom);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = "rgba(200,50,0, 0.2)";
+                    ctx.stroke();
+                }
+            },
+        };
+
         this.chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -389,7 +406,8 @@ class TimeSeriesDashboard {
                 maintainAspectRatio: false,
                 interaction: {
                     intersect: false,
-                    mode: 'index'
+                    mode: 'index',
+                    axis: 'x'
                 },
                 plugins: {
                     title: {
@@ -414,7 +432,7 @@ class TimeSeriesDashboard {
                                 return `Time: ${context[0].parsed.x}`;
                             }
                         }
-                    }
+                    },
                 },
                 scales: {
                     x: {
@@ -441,7 +459,8 @@ class TimeSeriesDashboard {
                         }
                     }
                 }
-            }
+            },
+            plugins: [ intersectDataVerticalLine ],
         });
     }
 

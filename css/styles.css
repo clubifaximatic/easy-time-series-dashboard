@@ -81,7 +81,7 @@ body {
 }
 
 .upload-area h3 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: #333;
     margin-bottom: 10px;
     font-weight: 500;
@@ -118,7 +118,7 @@ body {
 .controls-card h3 {
     font-size: 1.3rem;
     color: #333;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     font-weight: 500;
 }
 
@@ -205,13 +205,13 @@ input:checked + .slider:before {
 
 /* Info Section */
 .info-card {
-    padding: 30px;
+    padding: 20px;
 }
 
 .info-card h3 {
     font-size: 1.3rem;
     color: #333;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     font-weight: 500;
 }
 
