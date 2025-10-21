@@ -2,6 +2,8 @@
 
 A client-side web application for visualizing time-series data from CSV files. Upload CSV files to create interactive line charts with the ability to show/hide individual data series.
 
+The web application is live and available for testing here: https://dev.elllimoner.com/easy-time-series-dashboard/
+
 ## Features
 
 - **Drag & Drop Upload**: Easy CSV file upload with drag-and-drop support
